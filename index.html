@@ -2,10 +2,190 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>tiller.boats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiller Boats</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    /* Floating particles background */
+    .particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: rgba(0, 200, 255, 0.7);
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 3rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      z-index: 1;
+      margin-bottom: 2rem;
+      animation: glitch 3s infinite;
+      text-shadow: 0 0 20px cyan, 0 0 40px cyan;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { text-shadow: 0 0 20px cyan, 0 0 40px cyan; transform: none; }
+      92% { transform: skewX(-10deg); text-shadow: -4px 0 magenta, 4px 0 cyan; }
+      94% { transform: skewX(10deg); text-shadow: 4px 0 magenta, -4px 0 cyan; }
+      96% { transform: none; }
+    }
+
+    .photo-container {
+      position: relative;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    .photo-container img {
+      width: min(80vw, 600px);
+      border-radius: 12px;
+      display: block;
+      animation: bob 4s ease-in-out infinite;
+      transition: transform 0.1s;
+      filter: saturate(1.2) contrast(1.1);
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50%       { transform: translateY(-18px) rotate(1deg); }
+    }
+
+    /* Rainbow border spin */
+    .photo-container::before {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 16px;
+      background: conic-gradient(red, orange, yellow, green, cyan, blue, violet, red);
+      animation: spin 3s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Hover: wild distortion */
+    .photo-container:hover img {
+      animation: shake 0.15s infinite, hueshift 0.5s linear infinite;
+      filter: saturate(3) contrast(1.5) brightness(1.2);
+    }
+
+    @keyframes shake {
+      0%   { transform: translate(-3px, 2px) rotate(-2deg); }
+      25%  { transform: translate(3px, -2px) rotate(2deg); }
+      50%  { transform: translate(-2px, -3px) rotate(-1deg); }
+      75%  { transform: translate(2px, 3px) rotate(1deg); }
+      100% { transform: translate(-3px, 2px) rotate(-2deg); }
+    }
+
+    @keyframes hueshift {
+      to { filter: saturate(3) contrast(1.5) hue-rotate(360deg); }
+    }
+
+    /* Click ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple-out 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-out {
+      to { transform: scale(6); opacity: 0; }
+    }
+
+    .hint {
+      color: rgba(255,255,255,0.4);
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      z-index: 1;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
+
+  <div class="particles" id="particles"></div>
+
   <h1>Hello</h1>
-  <img src="IMG_2206.jpg" alt="photo" style="max-width:100%;">
+
+  <div class="photo-container" id="photoContainer">
+    <img src="IMG_2206.jpg" alt="photo">
+  </div>
+
+  <p class="hint">hover · click · enjoy</p>
+
+  <script>
+    // Generate floating particles
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 60; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.cssText = `
+        left: ${Math.random() * 100}%;
+        width: ${2 + Math.random() * 5}px;
+        height: ${2 + Math.random() * 5}px;
+        animation-duration: ${4 + Math.random() * 8}s;
+        animation-delay: ${-Math.random() * 10}s;
+        background: hsl(${Math.random() * 360}, 100%, 70%);
+      `;
+      container.appendChild(p);
+    }
+
+    // Click ripple effect
+    document.getElementById('photoContainer').addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      const size = 60;
+      ripple.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        left: ${e.clientX - rect.left - size/2}px;
+        top: ${e.clientY - rect.top - size/2}px;
+        background: hsl(${Math.random()*360}, 100%, 60%, 0.5);
+      `;
+      this.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
+  </script>
 </body>
 </html>
